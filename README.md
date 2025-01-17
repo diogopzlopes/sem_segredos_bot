@@ -10,24 +10,41 @@ git clone https://github.com/diogopzlopes/sem_segredos_bot.git
 cd sem_segredos_bot
 ```
 
-2. Instale as dependências:
+2. Crie e ative um ambiente virtual:
+   ```bash
+   python -m venv venv
+   ```
+
+   - No Windows:
+     ```bash
+     venv\Scripts\activate
+     ```
+   - No macOS/Linux:
+     ```bash
+     source venv/bin/activate
+     ```
+
+3. Instale as dependências:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Acesse o site https://aistudio.google.com/app/apikey , crie e copie sua chave api (modelo usado no projeto é gratuito)
+4. Pegue sua chave api 
+```bash
+Acesse: https://aistudio.google.com/app/apikey , crie e copie sua chave api (modelo usado no projeto é gratuito)
+```
 
-4. Exclua o .example do arquivo .env, edite com bloco de notas, adicione sua chave api e salve:
+5. Exclua o .example do arquivo .env, edite com bloco de notas, adicione sua chave api e salve:
 ```
 GEMINI_API_KEY=sua_api_key_aqui
 ```
 
-5. Execute a aplicação:
+6. Execute a aplicação:
 ```bash
 python app.py
 ```
 
-6. Acesse o bot no navegador:
+7. Acesse o bot no navegador:
 ```
 http://localhost:5000
 ```
