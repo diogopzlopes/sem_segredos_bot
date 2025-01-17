@@ -29,9 +29,9 @@ cd sem_segredos_bot
 pip install -r requirements.txt
 ```
 
-4. Pegue sua chave api 
+4. Pegue sua chave api em https://aistudio.google.com/app/apikey
 ```bash
-Acesse: https://aistudio.google.com/app/apikey , crie e copie sua chave api (modelo usado no projeto é gratuito)
+Crie e copie sua chave api (modelo usado no projeto é gratuito)
 ```
 
 5. Exclua o .example do arquivo .env, edite com bloco de notas, adicione sua chave api e salve:
