@@ -15,17 +15,19 @@ cd sem_segredos_bot
 pip install -r requirements.txt
 ```
 
-3. Crie um arquivo `.env` na raiz do projeto e adicione sua API key do Google:
+3. Acesse o site https://aistudio.google.com/app/apikey , crie e copie sua chave api (modelo usado no projeto é gratuito)
+
+4. Exclua o .example do arquivo .env, edite com bloco de notas, adicione sua chave api e salve:
 ```
 GEMINI_API_KEY=sua_api_key_aqui
 ```
 
-4. Execute a aplicação:
+5. Execute a aplicação:
 ```bash
 python app.py
 ```
 
-5. Acesse o bot no navegador:
+6. Acesse o bot no navegador:
 ```
 http://localhost:5000
 ```
