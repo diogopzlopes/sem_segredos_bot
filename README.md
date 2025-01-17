@@ -1,3 +1,9 @@
+<div>
+<h2>Junte-se ao nosso servidor Discord!</h2>
+
+<a href="https://discord.gg/762358903354687548"><img src="http://invidget.switchblade.xyz/762358903354687548?language=pt" style="width: 400px;"/></a>
+</div>
+
 ![Logo da Empresa](static/site1.png)
 
 # Sem Segredos Bot
@@ -57,4 +63,3 @@ python app.py
 ```
 http://localhost:5000
 ```
-
