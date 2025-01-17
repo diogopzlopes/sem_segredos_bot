@@ -43,7 +43,7 @@ pip install -r requirements.txt
 Crie e copie sua chave api (modelo usado no projeto é gratuito)
 ```
 
-6. Renomeir o arquivo .env.example para .env. Botão direito, editar com bloco de notas, adicione sua chave api e salve:
+6. Renomear o arquivo .env.example para .env - Botão direito, editar com bloco de notas, adicione sua chave api e salve:
 ```
 GEMINI_API_KEY=sua_api_key_aqui
 ```
