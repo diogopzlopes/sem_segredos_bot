@@ -48,7 +48,7 @@ Crie e copie sua chave api (modelo usado no projeto é gratuito)
 GEMINI_API_KEY=sua_api_key_aqui
 ```
 
-7. Execute a aplicação:
+7. Execute a aplicação - No terminal digite:
 ```bash
 python app.py
 ```
