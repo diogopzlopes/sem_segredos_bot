@@ -11,6 +11,8 @@ Um chatbot interativo usando a API Gemini do Google.
 - Sistema de histórico de conversas
 - Interface web amigável
 
+<img src="static/screenshot.jpg" alt="Screenshot do Projeto" width="800"/>
+
 ## Configuração
 
 1. Abra o terminal do Windows:
