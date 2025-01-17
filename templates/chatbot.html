@@ -14,6 +14,7 @@
             padding: 0;
             height: 100vh;
             display: flex;
+            background-color: #f0f0f0;
         }
 
         .sidebar { 
@@ -236,7 +237,7 @@
 </head>
 <body>
     <div class="sidebar">
-        <button class="new-chat-btn" style="font-size: 14px;" onclick="newChat()">Nova Conversa</button>
+        <a class="new-chat-btn" onclick="newChat()">Nova Conversa</a>
         <a href="/agents" class="manage-agents-btn">Gerenciar Agentes</a>
         <div id="chat-list">
             {% for chat_id, chat in conversations.items() %}
