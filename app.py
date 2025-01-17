@@ -51,7 +51,9 @@ def load_agents():
             'created_at': datetime.now().strftime("%d/%m/%Y %H:%M")
         }
     }
-    save_agents(default_agents)
+    # Criar arquivo com agente padrão
+    with open(AGENTS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(default_agents, f, ensure_ascii=False, indent=4)
     return default_agents
 
 def save_agents(agents):
@@ -62,7 +64,12 @@ def load_conversations():
     if CONVERSATIONS_FILE.exists():
         with open(CONVERSATIONS_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
-    return {}
+    
+    # Criar arquivo vazio se não existir
+    empty_conversations = {}
+    with open(CONVERSATIONS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(empty_conversations, f, ensure_ascii=False, indent=4)
+    return empty_conversations
 
 def save_conversations(conversations):
     with open(CONVERSATIONS_FILE, 'w', encoding='utf-8') as f:
