@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Agentes - Sem Segredos Bot</title>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+        body { 
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .agent-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .instruction-area {
+            width: 100%;
+            min-height: 100px;
+            margin: 10px 0;
+        }
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+        }
+        .new-agent-btn {
+            background-color: #2196F3;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .back-btn {
+            background-color: #607D8B;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .agent-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .save-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .default-agent {
+            background-color: #f8f8f8;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .agent-status {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .unsaved {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gerenciar Agentes</h1>
+    <a href="/" class="button back-btn">Voltar ao Chat</a>
+    <button onclick="createAgent()" class="button new-agent-btn">Criar Novo Agente</button>
+    
+    <div id="agents-list">
+        {% for agent_id, agent in agents.items() %}
+            {% if agent_id != 'default' %}
+            <div class="agent-card" id="agent-{{ agent_id }}">
+                <div class="agent-header">
+                    <input type="text" 
+                           value="{{ agent.name }}" 
+                           onchange="markUnsaved('{{ agent_id }}')">
+                    <button onclick="deleteAgent('{{ agent_id }}')" class="button delete-btn">Excluir</button>
+                </div>
+                <textarea class="instruction-area" 
+                          onchange="markUnsaved('{{ agent_id }}')" 
+                          placeholder="Digite as instruções para o agente...">{{ agent.instruction }}</textarea>
+                <div>Criado em: {{ agent.created_at }}</div>
+                <div class="agent-status" id="status-{{ agent_id }}"></div>
+                <div class="agent-actions">
+                    <button onclick="saveAgent('{{ agent_id }}')" 
+                            class="button save-btn" 
+                            id="save-{{ agent_id }}">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <script>
+        function createAgent() {
+            const name = prompt('Digite o nome do novo agente:');
+            if (name) {
+                fetch('/agent/new', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name, instruction: '' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        function markUnsaved(agentId) {
+            if (agentId === 'default') return;
+            
+            const statusDiv = document.getElementById(`status-${agentId}`);
+            const saveBtn = document.getElementById(`save-${agentId}`);
+            
+            statusDiv.textContent = 'Alterações não salvas';
+            statusDiv.classList.add('unsaved');
+            saveBtn.disabled = false;
+        }
+
+        function saveAgent(agentId) {
+            const agentCard = document.getElementById(`agent-${agentId}`);
+            const name = agentCard.querySelector('input').value;
+            const instruction = agentCard.querySelector('textarea').value;
+            const statusDiv = document.getElementById(`status-${agentId}`);
+            const saveBtn = document.getElementById(`save-${agentId}`);
+
+            fetch(`/agent/edit/${agentId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, instruction: instruction })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusDiv.textContent = 'Alterações salvas com sucesso!';
+                    statusDiv.classList.remove('unsaved');
+                    saveBtn.disabled = true;
+                    
+                    // Remove a mensagem de sucesso após 3 segundos
+                    setTimeout(() => {
+                        statusDiv.textContent = '';
+                    }, 3000);
+                }
+            });
+        }
+
+        function deleteAgent(agentId) {
+            if (confirm('Tem certeza que deseja excluir este agente?')) {
+                fetch(`/agent/delete/${agentId}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        // Desabilitar todos os botões de salvar inicialmente
+        document.querySelectorAll('.save-btn').forEach(btn => {
+            btn.disabled = true;
+        });
+    </script>
+</body>
+</html>

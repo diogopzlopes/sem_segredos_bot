@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sem Segredos Bot</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+        }
+
+        .sidebar { 
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 250px;
+            background-color: #f0f0f0;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        
+        .main-content {
+            margin-left: 270px;
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        #chat { 
+            flex: 1;
+            border: 1px solid #ccc; 
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            min-height: 0; /* Importante para o flex funcionar corretamente */
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+            padding: 10px 0;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: 20%;
+        }
+        .bot-message {
+            background-color: #ffffff;
+            margin-right: 20%;
+        }
+        #userInput { 
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #sendButton {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #sendButton:hover {
+            background-color: #45a049;
+        }
+        pre code {
+            display: block;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .upload-button {
+            padding: 10px 15px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .upload-button:hover {
+            background-color: #1976D2;
+        }
+
+        .remove-button {
+            padding: 5px 10px;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .image-preview-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 250px;
+            background-color: #f0f0f0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 270px;
+        }
+        
+        .chat-item {
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .chat-item:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .chat-item.active {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .new-chat-btn {
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #2284e6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        .new-chat-btn:hover {
+            background-color: #1976D2;
+        }
+        
+        .chat-title {
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .chat-date {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .chat-actions {
+            display: none;
+            margin-top: 5px;
+        }
+        
+        .chat-item:hover .chat-actions {
+            display: block;
+        }
+
+        .manage-agents-btn {
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #2284e6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .manage-agents-btn:hover {
+            background-color: #1976D2;
+        }
+
+        .agent-selector {
+            margin-bottom: 10px;
+        }
+        
+        .agent-selector select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 200px;
+            font-size: 14px;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin: 0 0 20px 0;
+        }
+
+        .logo {
+            max-height: 100px;  /* Ajuste este valor conforme necessário */
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <button class="new-chat-btn" style="font-size: 14px;" onclick="newChat()">Nova Conversa</button>
+        <a href="/agents" class="manage-agents-btn">Gerenciar Agentes</a>
+        <div id="chat-list">
+            {% for chat_id, chat in conversations.items() %}
+            <div class="chat-item {% if chat_id == current_chat_id %}active{% endif %}" id="chat-{{ chat_id }}" onclick="switchChat('{{ chat_id }}')">
+                <div class="chat-title">{{ chat.title }}</div>
+                <div class="chat-date">{{ chat.created_at }}</div>
+                <div class="chat-actions">
+                    <button onclick="event.stopPropagation(); renameChat('{{ chat_id }}')">✏️</button>
+                    <button onclick="event.stopPropagation(); deleteChat('{{ chat_id }}')">🗑️</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='site1.png') }}" alt="Sem Segredos Bot" class="logo">
+        </div>
+        <div id="chat">
+            {% if chat_history %}
+                {% for message in chat_history %}
+                    <div class="message {% if message.role == 'user' %}user-message{% else %}bot-message{% endif %}">
+                        {% if message.role == 'model' %}
+                            {{ message.parts|safe }}
+                        {% else %}
+                            {{ message.parts }}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="image-preview-container" style="display: none;">
+            <img id="imagePreview" style="max-width: 200px; max-height: 200px;">
+            <button id="removeImage" class="remove-button">❌</button>
+        </div>
+        <div class="agent-selector">
+            <select id="agentSelect" onchange="changeAgent(this.value)">
+                {% for agent_id, agent in agents.items() %}
+                    <option value="{{ agent_id }}">{{ agent.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="input-container">
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+            <button id="uploadButton" class="upload-button">📷 Imagem</button>
+            <input type="text" id="userInput" placeholder="Digite sua mensagem...">
+            <button id="sendButton">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        let currentImage = null;
+        let currentAgent = 'default';
+
+        marked.setOptions({
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    return hljs.highlight(code, { language: lang }).value;
+                }
+                return hljs.highlightAuto(code).value;
+            },
+            breaks: true
+        });
+
+        document.getElementById('uploadButton').onclick = function() {
+            document.getElementById('imageInput').click();
+        };
+
+        document.getElementById('imageInput').onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentImage = e.target.result;
+                    document.getElementById('imagePreview').src = currentImage;
+                    document.querySelector('.image-preview-container').style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        document.getElementById('removeImage').onclick = function() {
+            currentImage = null;
+            document.querySelector('.image-preview-container').style.display = 'none';
+            document.getElementById('imageInput').value = '';
+        };
+
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        document.getElementById('sendButton').onclick = sendMessage;
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            
+            if (!message && !currentImage) return;
+
+            let userMessageContent = message;
+            if (currentImage) {
+                userMessageContent += '<br><img src="' + currentImage + '" style="max-width: 200px; max-height: 200px;">';
+            }
+            
+            appendMessage('user', userMessageContent);
+            userInput.value = '';
+
+            const requestData = {
+                message: message,
+                agent_id: currentAgent
+            };
+            
+            if (currentImage) {
+                requestData.image = currentImage;
+            }
+
+            fetch('/send_message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                appendMessage('bot', data.response);
+                if (currentImage) {
+                    document.getElementById('removeImage').click();
+                }
+                if (data.history) {
+                    console.log('Histórico atualizado:', data.history);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                appendMessage('bot', 'Desculpe, ocorreu um erro ao processar sua mensagem.');
+            });
+        }
+
+        function appendMessage(sender, text) {
+            const chat = document.getElementById('chat');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            messageDiv.innerHTML = sender === 'bot' ? marked.parse(text) : text;
+            
+            chat.appendChild(messageDiv);
+            chat.scrollTop = chat.scrollHeight;
+
+            messageDiv.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        }
+
+        function newChat() {
+            fetch('/new_chat', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        }
+        
+        function switchChat(chatId) {
+            fetch(`/switch_chat/${chatId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        }
+        
+        function renameChat(chatId) {
+            const newTitle = prompt('Digite o novo título para a conversa:');
+            if (newTitle) {
+                fetch(`/rename_chat/${chatId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: newTitle })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+        
+        function deleteChat(chatId) {
+            if (confirm('Tem certeza que deseja excluir esta conversa?')) {
+                fetch(`/delete_chat/${chatId}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+
+        function changeAgent(agentId) {
+            currentAgent = agentId;
+            console.log('Agente alterado para:', agentId);
+        }
+    </script>
+</body>
+</html>
