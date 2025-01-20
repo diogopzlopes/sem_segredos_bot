@@ -4,196 +4,313 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Agentes - Sem Segredos Bot</title>
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <style>
-        body { 
+        body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
+            margin: 0;
             padding: 20px;
+            background-color: #f5f5f5;
         }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            text-decoration: none;
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 4px;
+            background-color: #e0e0e0;
+        }
+
+        .new-agent-btn {
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .agent-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
         .agent-card {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 5px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
         }
+
         .agent-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
-        .instruction-area {
-            width: 100%;
-            min-height: 100px;
-            margin: 10px 0;
+
+        .agent-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0;
         }
-        .button {
-            padding: 10px 20px;
+
+        .agent-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .agent-actions button {
+            padding: 5px 10px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            margin-right: 5px;
         }
-        .save-btn {
-            background-color: #4CAF50;
+
+        .edit-btn {
+            background-color: #2196F3;
             color: white;
         }
+
         .delete-btn {
             background-color: #f44336;
             color: white;
         }
-        .new-agent-btn {
-            background-color: #2196F3;
-            color: white;
-            margin-bottom: 20px;
-        }
-        .back-btn {
-            background-color: #607D8B;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-        .agent-actions {
+
+        .agent-instruction {
             margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* Estilos do Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
             display: flex;
+            justify-content: flex-end;
             gap: 10px;
         }
-        
-        .save-btn {
-            background-color: #4CAF50;
+
+        .modal-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal-cancel {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .modal-confirm {
+            background-color: #2196F3;
             color: white;
         }
-        
-        .save-btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
+
+        .modal-input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
         }
-        
-        .default-agent {
-            background-color: #f8f8f8;
-            border-left: 4px solid #2196F3;
-        }
-        
-        .agent-status {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .unsaved {
-            color: #f44336;
+
+        textarea.modal-input {
+            min-height: 100px;
+            resize: vertical;
         }
     </style>
 </head>
 <body>
-    <h1>Gerenciar Agentes</h1>
-    <a href="/" class="button back-btn">Voltar ao Chat</a>
-    <button onclick="createAgent()" class="button new-agent-btn">Criar Novo Agente</button>
-    
-    <div id="agents-list">
-        {% for agent_id, agent in agents.items() %}
-            {% if agent_id != 'default' %}
-            <div class="agent-card" id="agent-{{ agent_id }}">
-                <div class="agent-header">
-                    <input type="text" 
-                           value="{{ agent.name }}" 
-                           onchange="markUnsaved('{{ agent_id }}')">
-                    <button onclick="deleteAgent('{{ agent_id }}')" class="button delete-btn">Excluir</button>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-button">← Voltar</a>
+            <button class="new-agent-btn" onclick="showNewAgentModal()">Novo Agente</button>
+        </div>
+
+        <div class="agent-list">
+            {% for agent_id, agent in agents.items() %}
+                {% if agent_id != 'default' %}  <!-- Só mostra se não for o agente padrão -->
+                <div class="agent-card">
+                    <div class="agent-header">
+                        <h3 class="agent-name">{{ agent.name }}</h3>
+                        <div class="agent-actions">
+                            <button class="edit-btn" onclick="showEditAgentModal('{{ agent_id }}', '{{ agent.name }}', `{{ agent.instruction }}`)">✏️</button>
+                            <button class="delete-btn" onclick="showDeleteAgentModal('{{ agent_id }}', '{{ agent.name }}')">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="agent-instruction">{{ agent.instruction }}</div>
                 </div>
-                <textarea class="instruction-area" 
-                          onchange="markUnsaved('{{ agent_id }}')" 
-                          placeholder="Digite as instruções para o agente...">{{ agent.instruction }}</textarea>
-                <div>Criado em: {{ agent.created_at }}</div>
-                <div class="agent-status" id="status-{{ agent_id }}"></div>
-                <div class="agent-actions">
-                    <button onclick="saveAgent('{{ agent_id }}')" 
-                            class="button save-btn" 
-                            id="save-{{ agent_id }}">
-                        Salvar Alterações
-                    </button>
-                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Modal de Novo/Editar Agente -->
+    <div id="agentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Novo Agente</h3>
             </div>
-            {% endif %}
-        {% endfor %}
+            <div class="modal-body">
+                <input type="text" id="agentName" class="modal-input" placeholder="Nome do Agente">
+                <textarea id="agentInstruction" class="modal-input" placeholder="Instruções do Agente"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-button modal-cancel" onclick="closeModal('agentModal')">Cancelar</button>
+                <button class="modal-button modal-confirm" id="saveAgentButton">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Exclusão</h3>
+            </div>
+            <div class="modal-body">
+                <p id="deleteMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-button modal-cancel" onclick="closeModal('deleteModal')">Cancelar</button>
+                <button class="modal-button modal-confirm" id="confirmDeleteButton">Excluir</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        function createAgent() {
-            const name = prompt('Digite o nome do novo agente:');
-            if (name) {
-                fetch('/agent/new', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: name, instruction: '' })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    }
-                });
-            }
+        let currentAgentId = null;
+
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
         }
 
-        function markUnsaved(agentId) {
-            if (agentId === 'default') return;
-            
-            const statusDiv = document.getElementById(`status-${agentId}`);
-            const saveBtn = document.getElementById(`save-${agentId}`);
-            
-            statusDiv.textContent = 'Alterações não salvas';
-            statusDiv.classList.add('unsaved');
-            saveBtn.disabled = false;
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
         }
 
-        function saveAgent(agentId) {
-            const agentCard = document.getElementById(`agent-${agentId}`);
-            const name = agentCard.querySelector('input').value;
-            const instruction = agentCard.querySelector('textarea').value;
-            const statusDiv = document.getElementById(`status-${agentId}`);
-            const saveBtn = document.getElementById(`save-${agentId}`);
+        function showNewAgentModal() {
+            currentAgentId = null;
+            document.getElementById('modalTitle').textContent = 'Novo Agente';
+            document.getElementById('agentName').value = '';
+            document.getElementById('agentInstruction').value = '';
+            document.getElementById('saveAgentButton').onclick = saveAgent;
+            showModal('agentModal');
+        }
 
-            fetch(`/agent/edit/${agentId}`, {
+        function showEditAgentModal(agentId, name, instruction) {
+            currentAgentId = agentId;
+            document.getElementById('modalTitle').textContent = 'Editar Agente';
+            document.getElementById('agentName').value = name;
+            document.getElementById('agentInstruction').value = instruction;
+            document.getElementById('saveAgentButton').onclick = saveAgent;
+            showModal('agentModal');
+        }
+
+        function showDeleteAgentModal(agentId, name) {
+            document.getElementById('deleteMessage').textContent = `Tem certeza que deseja excluir o agente "${name}"?`;
+            document.getElementById('confirmDeleteButton').onclick = () => deleteAgent(agentId);
+            showModal('deleteModal');
+        }
+
+        function saveAgent() {
+            const name = document.getElementById('agentName').value.trim();
+            const instruction = document.getElementById('agentInstruction').value.trim();
+            
+            if (!name) return;
+
+            const endpoint = currentAgentId ? `/agent/edit/${currentAgentId}` : '/agent/new';
+            
+            fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: name, instruction: instruction })
+                body: JSON.stringify({ name, instruction })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    statusDiv.textContent = 'Alterações salvas com sucesso!';
-                    statusDiv.classList.remove('unsaved');
-                    saveBtn.disabled = true;
-                    
-                    // Remove a mensagem de sucesso após 3 segundos
-                    setTimeout(() => {
-                        statusDiv.textContent = '';
-                    }, 3000);
+                    location.reload();
                 }
             });
+            
+            closeModal('agentModal');
         }
 
         function deleteAgent(agentId) {
-            if (confirm('Tem certeza que deseja excluir este agente?')) {
-                fetch(`/agent/delete/${agentId}`, {
-                    method: 'POST'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    }
-                });
-            }
+            fetch(`/agent/delete/${agentId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+            
+            closeModal('deleteModal');
         }
 
-        // Desabilitar todos os botões de salvar inicialmente
-        document.querySelectorAll('.save-btn').forEach(btn => {
-            btn.disabled = true;
-        });
+        // Fechar modal se clicar fora dele
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
+            }
+        }
     </script>
 </body>
 </html>
