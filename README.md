@@ -6,8 +6,8 @@
 
 <div style="text-align: center; font-size: 1.5em;">
   <h3> Junte-se ao nosso servidor Discord! </h3>
-  <a href="https://discord.gg/762358903354687548">
-    <img src="http://invidget.switchblade.xyz/762358903354687548?language=pt" style="width: 400px;"/>
+  <a href="https://discord.gg/u6uaWKC5qh">
+    <img src="http://invidget.switchblade.xyz/u6uaWKC5qh?language=pt" style="width: 400px;"/>
   </a>
 </div>
 </div>
